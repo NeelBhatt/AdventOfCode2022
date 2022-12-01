@@ -1,0 +1,24 @@
+var caleries = File.ReadAllLines(@"..\net6.0\TextFile1.txt");
+
+var caleriesByElf = new List<int>();
+
+var totalCaleriesByElf = 0;
+
+foreach (var cal in caleries)
+{
+    if (cal != String.Empty)
+    {
+        totalCaleriesByElf += int.Parse(cal);
+    }
+    else
+    {
+        caleriesByElf.Add(totalCaleriesByElf);
+        totalCaleriesByElf = 0;
+        continue;
+    }
+}
+
+var top3Caleries = caleriesByElf.OrderByDescending(x => x).Take(3);
+
+Console.WriteLine(top3Caleries.Sum());
+Console.ReadLine();
