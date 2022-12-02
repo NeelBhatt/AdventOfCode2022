@@ -32,6 +32,6 @@ static int GetScore(string shapes, bool part2)
 		('C', 'X') => part2 ? 2 : 7,
 		('C', 'Y') => part2 ? 6 : 2,
 		('C', 'Z') => part2 ? 7 : 6,
-		_ => throw new NotImplementedException()
+		_ => throw new NotImplementedException(),
 	};
 }
