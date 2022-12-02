@@ -1,0 +1,37 @@
+Console.WriteLine($"part one: {GetTotalScore(false)}");
+Console.WriteLine($"part two: {GetTotalScore(true)}");
+
+static int GetTotalScore(bool part2)
+{
+	var inputPath = @"..\net6.0\input.txt";
+
+	using var sr = File.OpenText(inputPath);
+	string? line;
+	int totalScore = 0;
+
+	while ((line = sr.ReadLine()) is not null)
+	{
+		totalScore += GetScore(line, part2);
+	}
+
+	return totalScore;
+}
+
+static int GetScore(string shapes, bool part2)
+{
+	(char playerOne, char playerTwo) shape = (shapes[0], shapes[2]);
+
+	return shape switch
+	{
+		('A', 'X') => part2 ? 3 : 4,
+		('A', 'Y') => part2 ? 4 : 8,
+		('A', 'Z') => part2 ? 8 : 3,
+		('B', 'X') => part2 ? 1 : 1,
+		('B', 'Y') => part2 ? 5 : 5,
+		('B', 'Z') => part2 ? 9 : 9,
+		('C', 'X') => part2 ? 2 : 7,
+		('C', 'Y') => part2 ? 6 : 2,
+		('C', 'Z') => part2 ? 7 : 6,
+		_ => throw new NotImplementedException()
+	};
+}
