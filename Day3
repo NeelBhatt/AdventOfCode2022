@@ -1,0 +1,16 @@
+var input = File.ReadLines(@"..\net6.0\input.txt");
+
+var totalSum = 0;
+
+foreach (var i in input)
+{
+    var firstHalf = i[..(int)(i.Length / 2)];
+    var secondHalf = i[(i.Length / 2)..];
+
+    var common = firstHalf.Intersect(secondHalf).FirstOrDefault();
+    var numericValue = char.IsUpper(common) ? common - 'A' + 27 : common - 'a' + 1;
+
+    totalSum += numericValue;
+}
+
+Console.WriteLine($"{totalSum}");
