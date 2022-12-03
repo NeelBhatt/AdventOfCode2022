@@ -1,7 +1,8 @@
 var input = File.ReadLines(@"..\net6.0\input.txt");
 
-var totalSum = 0;
+var totalSumPart1 = 0;
 
+// Using foreach
 foreach (var i in input)
 {
     var firstHalf = i[..(int)(i.Length / 2)];
@@ -10,7 +11,15 @@ foreach (var i in input)
     var common = firstHalf.Intersect(secondHalf).FirstOrDefault();
     var numericValue = char.IsUpper(common) ? common - 'A' + 27 : common - 'a' + 1;
 
-    totalSum += numericValue;
+    totalSumPart1 += numericValue;
 }
 
-Console.WriteLine($"{totalSum}");
+Console.WriteLine($"{totalSumPart1}");
+
+// Using LINQ
+var totalSumPart2 = File.ReadLines(@"..\net6.0\input.txt")
+    .Chunk(3)
+    .Select(i => i[0].Intersect(i[1]).Intersect(i[2]).FirstOrDefault())
+    .Sum(common => char.IsUpper(common) ? common - 'A' + 27 : common - 'a' + 1);
+
+Console.WriteLine($"{totalSumPart2}");
