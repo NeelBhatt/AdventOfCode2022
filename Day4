@@ -1,0 +1,29 @@
+var input = File.ReadAllLines(@"..\net6.0\input.txt");
+
+var fullOverlap = 0;
+var partialOverlap = 0;
+
+foreach (var i in input)
+{
+    var ranges = i.Split(',');
+
+    var aStart = int.Parse(ranges[0].Split('-')[1]);
+    int aEnd = int.Parse(ranges[0].Split('-')[0]);
+
+    int bStart = int.Parse(ranges[1].Split('-')[1]);
+    int bEnd = int.Parse(ranges[1].Split('-')[0]);
+
+    // Full overlap
+    if ((aStart >= bStart && bEnd >= aEnd) || (bStart >= aStart && aEnd >= bEnd))
+    {
+        fullOverlap++;
+    }
+
+    // Partial overlap
+    if ((aStart >= bStart && aEnd <= bStart) || (bStart >= aStart && bEnd <= aStart))
+    {
+        partialOverlap++;
+    }
+}
+
+Console.WriteLine($"Output for part1: {fullOverlap} and outout for part2: {partialOverlap}");
