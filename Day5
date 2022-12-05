@@ -1,0 +1,68 @@
+        var bucketSize = 0;
+        List<Stack<char>> newBuckets = new();
+        var result = string.Empty;
+
+        var allLines = File.ReadAllLines(@"..\net6.0\input.txt");
+
+        // Calculate number of buckets
+        foreach (var line in allLines)
+        {
+            if (line != string.Empty)
+            {
+                bucketSize++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        var count = 0;
+        do
+        {
+            count++;
+            newBuckets.Add(new Stack<char>());
+        } while (bucketSize > count);
+
+        // Fill the buckets
+        var instructionLines = allLines.Take(bucketSize + 1).Reverse();
+
+        foreach (var instructionLine in instructionLines)
+        {
+            for (int i = 0; i < bucketSize; i++)
+            {
+                var c = instructionLine[(i * 4) + 1];
+
+                if (c != ' ')
+                {
+                    newBuckets[i].Push(c);
+                }
+            }
+        }
+
+        // Follow instructions
+        var instructions = allLines.Skip(bucketSize + 1);
+
+        foreach (var instruction in instructions)
+        {
+            var todos = instruction.Split(" ");
+
+            var move = int.Parse(todos[1]);
+            var from = int.Parse(todos[3]) - 1;
+            var to = int.Parse(todos[5]) - 1;
+
+            var countMove = 0;
+            do
+            {
+                newBuckets[to].Push(newBuckets[from].Pop());
+                countMove++;
+            } while (move > countMove);
+        }
+
+        // Print results
+        foreach (var bucket in newBuckets)
+        {
+            result += bucket.Peek();
+        }
+
+        Console.WriteLine(result);
