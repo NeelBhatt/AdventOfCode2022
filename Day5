@@ -25,7 +25,7 @@ do
 } while (bucketSize > count);
 
 // Fill the buckets
-var instructionLines = allLines.Take(bucketSize + 1).Reverse();
+var instructionLines = allLines.Take(bucketSize).Reverse();
 
 foreach (var instructionLine in instructionLines)
 {
