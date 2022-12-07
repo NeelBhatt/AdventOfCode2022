@@ -1,0 +1,15 @@
+var input = File.ReadAllText(@"..\net6.0\input.txt");
+
+void ScanSignal(int characters)
+{
+    for (var i = characters; i < input.Length; i++)
+    {
+        var sample = input.Skip(i - characters).Take(characters).ToList();
+
+        if (sample.Distinct().Count() == characters)
+        {
+            Console.WriteLine($"Position: {i}");
+            break;
+        }
+    }
+}
