@@ -1,1 +1,91 @@
+const long FullSpace = 70000000;
+const long IdealSpace = 30000000;
 
+var commands = File.ReadLines(@"..\net6.0\input.txt");
+var documentDirectory = new DocumentDirectory();
+var stack = new Stack<DocumentDirectory>();
+stack.Push(documentDirectory);
+
+foreach (var command in commands.Skip(1))
+{
+    if (!command.StartsWith("$"))
+    {
+        var current = stack.Peek();
+        var parts = command.Split(' ', 2);
+
+        switch (parts[0])
+        {
+            case "dir":
+                current.ChildDirectory[parts[1]] = new();
+                break;
+            default:
+                current.Size += long.Parse(parts[0]);
+                break;
+        }
+    }
+    else
+    {
+        switch (command)
+        {
+            case "$ cd ..":
+                stack.Pop();
+                break;
+            case string cmd when cmd.StartsWith("$ cd "):
+                var name = command[5..];
+                stack.Push(stack.Peek().ChildDirectory[name]);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+var totalSizePart1 = documentDirectory.EnumAllDirectories()
+                  .Where(d => d.TotalSize <= 100000)
+                  .Sum(d => d.TotalSize);
+
+Console.WriteLine($"Part 1: {totalSizePart1}");
+
+var used = documentDirectory.TotalSize;
+var required = IdealSpace - (FullSpace - used);
+
+var totalSizePart2 = documentDirectory.EnumAllDirectories()
+                                .Where(d => d.TotalSize >= required)
+                                .OrderBy(d => d.TotalSize)
+                                .Select(d => d.TotalSize)
+                                .FirstOrDefault();
+
+Console.WriteLine($"Part 2: {totalSizePart2}");
+
+class DocumentDirectory
+{
+    public Dictionary<string, DocumentDirectory> ChildDirectory { get; } = new();
+
+    public long Size { get; set; } = 0;
+
+    public long TotalSize => Size + ChildDirectory.Values.Sum(d => d.TotalSize);
+
+    public IEnumerable<DocumentDirectory> EnumAllDirectories()
+    {
+        var queue = new Queue<DocumentDirectory>();
+        queue.Enqueue(this);
+
+        var directories = new List<DocumentDirectory>();
+
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+
+            // Add the current directory to the list
+            directories.Add(current);
+
+            // Add all child directories to the queue
+            foreach (var child in current.ChildDirectory.Values)
+            {
+                queue.Enqueue(child);
+            }
+        }
+
+        return directories;
+    }
+}
