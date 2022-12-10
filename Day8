@@ -1,1 +1,112 @@
+var lines = File.ReadLines(@"..\net6.0\input.txt").ToArray();
 
+var xSize = lines.Max(line => line.Length);
+var ySize = lines.Length;
+var grid = new int[xSize, ySize];
+
+// All of the trees around the edge of the grid are visible - since they are already on the edge, there are no trees to block the view
+int visibleTrees = (xSize * 2) + (ySize * 2) - 4;
+
+int yValue = 0;
+foreach (string line in lines)
+{
+    int xValue = 0;
+
+    foreach (char character in line)
+    {
+        // Convert character to integer and store it in the grid array
+        grid[xValue, yValue] = character - '0';
+        xValue++;
+    }
+
+    yValue++;
+}
+
+var highestScenicScore = 0;
+int scenicScore;
+
+for (int y = 1; y < ySize - 1; y++)
+{
+    for (int x = 1; x < xSize - 1; x++)
+    {
+        scenicScore = 0;
+        var treeArea = new TreeArea { Up = 0, Down = 0, Left = 0, Right = 0 };
+        var visibleTreeArea = new TreeArea { Up = 1, Down = 1, Left = 1, Right = 1 };
+
+        // Look up
+        for (int lu = y - 1; lu >= 0; lu--)
+        {
+            treeArea.Up++;
+
+            if (grid[x, lu] >= grid[x, y])
+            {
+                visibleTreeArea.Up = 0;
+                break;
+            }
+        }
+
+        // Look down
+        for (int ld = y + 1; ld < ySize; ld++)
+        {
+            treeArea.Down++;
+
+            if (grid[x, ld] >= grid[x, y])
+            {
+                visibleTreeArea.Down = 0;
+                break;
+            }
+        }
+
+        // Look left
+        for (int ll = x - 1; ll >= 0; ll--)
+        {
+            treeArea.Left++;
+
+            if (grid[ll, y] >= grid[x, y])
+            {
+                visibleTreeArea.Left = 0;
+                break;
+            }
+        }
+
+        // Look right
+        for (int lr = x + 1; lr < xSize; lr++)
+        {
+            treeArea.Right++;
+
+            if (grid[lr, y] >= grid[x, y])
+            {
+                visibleTreeArea.Right = 0;
+                break;
+            }
+        }
+
+        scenicScore = treeArea.Up * treeArea.Down * treeArea.Left * treeArea.Right;
+
+        if (scenicScore > highestScenicScore)
+        {
+            highestScenicScore = scenicScore;
+        }
+
+        if (visibleTreeArea.Total > 0)
+        {
+            visibleTrees += 1;
+        }
+    }
+}
+
+Console.WriteLine("Part 1: {0}", visibleTrees);
+Console.WriteLine("Part 2: {0}", highestScenicScore);
+
+class TreeArea
+{
+    public int Up { get; set; }
+
+    public int Down { get; set; }
+
+    public int Left { get; set; }
+
+    public int Right { get; set; }
+
+    public int Total => Up + Down + Left + Right;
+}
