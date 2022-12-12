@@ -1,1 +1,87 @@
+using System.Collections.Immutable;
 
+var input = File.ReadLines(@"..\net6.0\input.txt")
+                .Select(line => line.Split(' ', 2))
+                .Select(x => (direction: x[0][0], count: int.Parse(x[1])))
+                .ToList();
+
+var result1 = CountTailPositions(input);
+Console.WriteLine($"Part 1 Result = {result1}");
+
+var result2 = CountTailPositions(input, 10);
+Console.WriteLine($"Part 2 Result = {result2}");
+
+Console.ReadLine();
+
+static int CountTailPositions(IEnumerable<(char direction, int count)> input, int knots = 2)
+{
+    var directions = input.SelectMany(cmd => Enumerable.Repeat(cmd.direction, cmd.count));
+
+    var currentPosition = Rope.Create(knots);
+    HashSet<Position> tailPositions = new() { currentPosition.Tail };
+
+    foreach (var direction in directions)
+    {
+        currentPosition = currentPosition.Move(direction);
+        tailPositions.Add(currentPosition.Tail);
+    }
+
+    return tailPositions.Count;
+}
+
+record struct Position(int X = 0, int Y = 0)
+{
+    public Position Move(char direction) =>
+        direction switch
+        {
+            'L' => new Position(X - 1, Y),
+            'R' => new Position(X + 1, Y),
+            'U' => new Position(X, Y - 1),
+            'D' => new Position(X, Y + 1),
+            _ => this,
+        };
+
+    public Position Follow(Position head)
+    {
+        // Determine the direction to move in the x and y dimensions
+        var dx = Math.Sign(head.X - X);
+        var dy = Math.Sign(head.Y - Y);
+
+        // If the distance to the head Point is less than or equal to 1, return the original Point
+        if (Math.Abs(head.X - X) <= 1 && Math.Abs(head.Y - Y) <= 1)
+        {
+            return this;
+        }
+
+        // Return a new Point with the appropriate offsets
+        return new Position(X + dx, Y + dy);
+    }
+}
+
+record struct Rope
+{
+    public ImmutableArray<Position> Knots { get; }
+
+    public Position Tail => Knots.Last();
+
+    public Rope(ImmutableArray<Position> knots)
+    {
+        Knots = knots;
+    }
+
+    public Rope Move(char direction)
+    {
+        var knot = Knots.ToBuilder();
+        knot[0] = knot[0].Move(direction);
+
+        for (var i = 1; i < knot.Count; ++i)
+        {
+            knot[i] = knot[i].Follow(knot[i - 1]);
+        }
+
+        return new Rope(knot.ToImmutable());
+    }
+
+    public static Rope Create(int length)
+      => new(Enumerable.Repeat(new Position(), length).ToImmutableArray());
+}
