@@ -1,0 +1,67 @@
+var lines = File.ReadLines("input.txt");
+
+var operands = lines.Select(SplitCommands).ToList();
+
+Part1(operands);
+Part2(operands);
+
+Console.ReadLine();
+
+static void Part1(IEnumerable<(string command, int? number)> instructions)
+{
+    var signalStrengths = ExecuteInstructions(instructions).Select((x, i) => (tick: i + 1, x))
+                                               .Where(a => (a.tick - 20) % 40 == 0)
+                                               .Select(a => (a.tick, strength: a.x * a.tick))
+                                               .Sum(a => a.strength);
+
+    Console.WriteLine($"Part1 = {signalStrengths}");
+}
+
+static void Part2(IEnumerable<(string command, int? number)> instructions)
+{
+    const int columns = 40;
+    const int rows = 6;
+    var crt = new char[columns * rows];
+    var output = ExecuteInstructions(instructions).Select((x, i) => (tick: i, x));
+
+    foreach (var (tick, x) in output)
+    {
+        var index = tick % crt.Length;
+        var col = index % columns;
+        crt[index] = col >= x - 1 && col <= x + 1 ? '#' : '.';
+    }
+
+    Console.WriteLine("Part2:");
+
+    for (var row = 0; row < rows; ++row)
+    {
+        Console.WriteLine(new string(crt, row * columns, columns));
+    }
+}
+
+static IEnumerable<int> ExecuteInstructions(IEnumerable<(string op, int? operand)> instructions)
+{
+    var x = 1;
+
+    foreach (var instruction in instructions)
+    {
+        switch (instruction)
+        {
+            case ("noop", _):
+                yield return x;
+                break;
+
+            case ("addx", int value):
+                yield return x;
+                yield return x;
+                x += value;
+                break;
+        }
+    }
+}
+
+static (string command, int? number) SplitCommands(string instruction)
+{
+    var parts = instruction.Split(' ', 2);
+    return (parts[0], parts.Length > 1 ? int.Parse(parts[1]) : default);
+}
